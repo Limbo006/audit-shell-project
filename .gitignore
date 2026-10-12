@@ -1,0 +1,9 @@
+reports/*
+!reports/.gitkeep
+logs/*
+!logs/.gitkeep
+archives/*
+!archives/.gitkeep
+tmp/*
+!tmp/.gitkeep
+
