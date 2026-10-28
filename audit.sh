@@ -44,9 +44,20 @@ audit_reseau(){
 	echo "Audit reseau"
 }
 # ===== Bloc 6 : audit securite (khadija) =====
-#Provisoire : remplace par khadija etape5
+# controle  securite : comptes bash ,portes en ecoute , fichiers 777 
 audit_securite(){
-	echo "Audit securite"
+{
+echo "[3] analyse de securite"
+echo "comptes avec un shell bash"
+grep 'bash$' /etc/passwd | cut -d: -f1
+echo "ports en ecoute ;"
+ss -tuln
+echo "fichiers en mode 777 dans $HOME ;"
+find "$HOME" -type f -perm 0777 2>/dev/null
+echo "(indicateurs a examiner, pas une preuve de vulnerabilite)"
+} >> "$RAPPORT"
+journaliser "audit securite termine"
+
 }
 # ===== Bloc 7 : resume et archives (ilyas) =====
 # ===== Bloc 8 : menu interactif (khadija) =====
