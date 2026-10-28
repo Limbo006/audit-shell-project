@@ -2,7 +2,7 @@
 
 # ===== Bloc 1 : en-tete (ilyas) =====
 # audit.sh : permet l'audit d'une machine linux(systeme, securite et reseau)
-# Fait par : ilyas Joubaer, yacine Ben Ammar, khadija Jermouni
+# Fait par : ilyas Joubaer, yacine Ben Ammar, khadija Jarmouni
 # ===== Bloc 2 : variables (ilyas) =====
 DIR=$(cd "$(dirname "$0")" && pwd)
 LOG="$DIR/logs/audit.log"
