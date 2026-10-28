@@ -49,6 +49,21 @@ audit_securite(){
 	echo "Audit securite"
 }
 # ===== Bloc 7 : resume et archives (ilyas) =====
+archiver_rapport(){
+	archive="$DIR/archives/audit_$DATE.tar.gz"
+	tar -czf "$archive" -C "$DIR/reports" "$(basename "$RAPPORT")"
+	journaliser "Archive cree: $(basename "$archive")"
+}
+
+ecrire_resume(){
+        {
+		echo
+                echo "[4] Resume"
+                echo "Test OK       : $NB_OK"
+                echo "Test echec    : $NB_ERREUR"
+        } >> "$RAPPORT"
+
+}
 # ===== Bloc 8 : menu interactif (khadija) =====
 # ===== Bloc 9 : programme principal (ilyas) =====
 mkdir -p "$DIR/reports" "$DIR/logs" "$DIR/archives"
@@ -63,13 +78,16 @@ if [ ! -r "$DIR/config/targets.conf" ];then
 	exit 2
 fi
 
-ecrire_entete
 case "$1" in
-	--system) audit_systeme ;;
-	--network) audit_reseau ;;
-	--security) audit_securite ;;
-	--all) audit_systeme; audit_reseau ; audit_securite ;;
+	--system) ecrire_entete ; audit_systeme ;;
+	--network) ecrire_entete ; audit_reseau ;;
+	--security) ecrire_entete ; audit_securite ;;
+	--all) ecrire_entete ; audit_systeme; audit_reseau ; audit_securite ;;
 	--help) afficher_aide ; exit 0 ;;
 	*) echo "Option inconnue : $1" ; afficher_aide ; exit 1 ;;
 esac
+ecrire_resume
+archiver_rapport
 journaliser "Audit $1 termine"
+echo "Rapport cree: reports/$(basename "$RAPPORT")"
+echo "Tests OK : $NB_OK - Tests en echec: $NB_ERREUR"
