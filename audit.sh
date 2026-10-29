@@ -3,11 +3,13 @@
 # ===== Bloc 1 : en-tete (ilyas) =====
 # audit.sh : permet l'audit d'une machine linux(systeme, securite et reseau)
 # Fait par : ilyas Joubaer, yacine Ben Ammar, khadija Jarmouni
+
 # ===== Bloc 2 : variables (ilyas) =====
 DIR=$(cd "$(dirname "$0")" && pwd)
 LOG="$DIR/logs/audit.log"
 DATE=$(date '+%Y-%m-%d_%H-%M-%S')
 RAPPORT="$DIR/reports/audit_$DATE.txt"
+
 # ===== Bloc 3 : aide, journal, en-tete du rapport (ilyas) =====
 # afficher l'aide d'emploie de script
 afficher_aide(){
@@ -34,6 +36,7 @@ ecrire_entete(){
 		echo
 	} > "$RAPPORT"
 }
+
 # ===== Bloc 4 : audit systeme (yacine) =====
 audit_systeme() {
     {
@@ -165,5 +168,5 @@ esac
 ecrire_resume
 archiver_rapport
 journaliser "Audit $option termine"
-echo "Rapport cree: reports/$(basename "$RAPPORT")"
-echo "Tests OK : $NB_OK - Tests en echec: $NB_ERREUR"
+echo "Rapport créé : reports/$(basename "$RAPPORT")"
+echo "Tests OK : $NB_OK - Tests en échec: $NB_ERREUR"
