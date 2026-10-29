@@ -61,6 +61,24 @@ journaliser "audit securite termine"
 }
 # ===== Bloc 7 : resume et archives (ilyas) =====
 # ===== Bloc 8 : menu interactif (khadija) =====
+# menu par  choisir un audit avec read et case
+menu_interactif(){
+echo "1) audit systeme "
+echo "2) audit reseau"
+echo "3) audit securite"
+echo "4) tous les audits"
+echo "5) quitter"
+read -p "votre choix : " choix
+case $choix in
+1) option="--system" ;;
+2) option="--network" ;;
+3) option="--security" ;;
+4) option="--all" ;;
+5) exit 0 ;;
+*) echo "choix invalide" ; exit 1 ;;
+esac
+}
+
 # ===== Bloc 9 : programme principal (ilyas) =====
 mkdir -p "$DIR/reports" "$DIR/logs" "$DIR/archives"
 
