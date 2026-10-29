@@ -2,7 +2,7 @@
 
 # ===== Bloc 1 : en-tete (ilyas) =====
 # audit.sh : permet l'audit d'une machine linux(systeme, securite et reseau)
-# Fait par : ilyas Joubaer, yacine Ben Ammar, khadija Jermouni
+# Fait par : ilyas Joubaer, yacine Ben Ammar, khadija Jarmouni
 # ===== Bloc 2 : variables (ilyas) =====
 DIR=$(cd "$(dirname "$0")" && pwd)
 LOG="$DIR/logs/audit.log"
@@ -34,14 +34,56 @@ ecrire_entete(){
 	} > "$RAPPORT"
 }
 # ===== Bloc 4 : audit systeme (yacine) =====
-# Provisoire: remplace par yacine a etape3
-audit_systeme(){
-	echo "Audit systeme"
+audit_systeme() {
+    {
+        echo "[1] Informations système"
+        echo "Noyau : $(uname -r)"
+        echo "Démarrée : $(uptime -p)"
+        echo
+        echo "Mémoire :"
+        free -h
+        echo
+        echo "Disque racine :"
+        df -h /
+        echo
+        echo "Les 5 processus les plus gourmands :"
+        ps aux --sort=-%cpu | head -n 6
+    } >> "$RAPPORT"
+
+    journaliser "Audit système terminé"
 }
+
 # ===== Bloc 5 : compteurs et audit reseau (yacine) =====
-# Provisoire : remplace apr yacine a etape4
-audit_reseau(){
-	echo "Audit reseau"
+NB_OK=0
+NB_ERREUR=0
+
+# Teste les cibles et leur port 22, puis compte les résultats ping.
+audit_reseau() {
+    echo "[2] Tests réseau" >> "$RAPPORT"
+
+    while read -r cible; do
+        if [ -z "$cible" ] || [ "${cible:0:1}" = "#" ]; then
+            continue
+        fi
+
+        if ping -c 1 -W 1 "$cible" > /dev/null 2>&1; then
+            echo "[OK] $cible répond" >> "$RAPPORT"
+            NB_OK=$((NB_OK + 1))
+        else
+            echo "[ERREUR] $cible ne répond pas" >> "$RAPPORT"
+            NB_ERREUR=$((NB_ERREUR + 1))
+        fi
+
+        if ! command -v nc > /dev/null 2>&1; then
+            echo "    port 22 : non testé (nc absent)" >> "$RAPPORT"
+        elif nc -z -w 1 "$cible" 22 > /dev/null 2>&1; then
+            echo "    port 22 : ouvert" >> "$RAPPORT"
+        else
+            echo "    port 22 : fermé ou filtré" >> "$RAPPORT"
+        fi
+    done < "$DIR/config/targets.conf"
+
+    journaliser "Audit réseau terminé"
 }
 # ===== Bloc 6 : audit securite (khadija) =====
 # controle  securite : comptes bash ,portes en ecoute , fichiers 777 
@@ -60,6 +102,21 @@ journaliser "audit securite termine"
 
 }
 # ===== Bloc 7 : resume et archives (ilyas) =====
+archiver_rapport(){
+	archive="$DIR/archives/audit_$DATE.tar.gz"
+	tar -czf "$archive" -C "$DIR/reports" "$(basename "$RAPPORT")"
+	journaliser "Archive cree: $(basename "$archive")"
+}
+
+ecrire_resume(){
+        {
+		echo
+                echo "[4] Resume"
+                echo "Test OK       : $NB_OK"
+                echo "Test echec    : $NB_ERREUR"
+        } >> "$RAPPORT"
+
+}
 # ===== Bloc 8 : menu interactif (khadija) =====
 # menu par  choisir un audit avec read et case
 menu_interactif(){
@@ -92,13 +149,16 @@ if [ ! -r "$DIR/config/targets.conf" ];then
 	exit 2
 fi
 
-ecrire_entete
 case "$1" in
-	--system) audit_systeme ;;
-	--network) audit_reseau ;;
-	--security) audit_securite ;;
-	--all) audit_systeme; audit_reseau ; audit_securite ;;
+	--system) ecrire_entete ; audit_systeme ;;
+	--network) ecrire_entete ; audit_reseau ;;
+	--security) ecrire_entete ; audit_securite ;;
+	--all) ecrire_entete ; audit_systeme; audit_reseau ; audit_securite ;;
 	--help) afficher_aide ; exit 0 ;;
 	*) echo "Option inconnue : $1" ; afficher_aide ; exit 1 ;;
 esac
+ecrire_resume
+archiver_rapport
 journaliser "Audit $1 termine"
+echo "Rapport cree: reports/$(basename "$RAPPORT")"
+echo "Tests OK : $NB_OK - Tests en echec: $NB_ERREUR"
