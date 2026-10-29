@@ -17,6 +17,7 @@ afficher_aide(){
 	echo "--security        controle de securite"
 	echo "--all             les trois audits"
 	echo "--help            cette aide"
+ echo "--interactive   menu interactive"
 
 }
 
@@ -149,7 +150,11 @@ if [ ! -r "$DIR/config/targets.conf" ];then
 	exit 2
 fi
 
-case "$1" in
+option="$1"
+if [ "$option" = "--interactive" ]; then
+menu_interactif
+fi
+case "$option" in 
 	--system) ecrire_entete ; audit_systeme ;;
 	--network) ecrire_entete ; audit_reseau ;;
 	--security) ecrire_entete ; audit_securite ;;
@@ -159,6 +164,6 @@ case "$1" in
 esac
 ecrire_resume
 archiver_rapport
-journaliser "Audit $1 termine"
+journaliser "Audit $option termine"
 echo "Rapport cree: reports/$(basename "$RAPPORT")"
 echo "Tests OK : $NB_OK - Tests en echec: $NB_ERREUR"
