@@ -90,16 +90,16 @@ audit_reseau() {
 # controle  securite : comptes bash ,portes en ecoute , fichiers 777 
 audit_securite(){
 {
-echo "[3] analyse de securite"
-echo "comptes avec un shell bash"
+echo "[3] Analyse de sécurité"
+echo "Comptes avec un shell bash :"
 grep 'bash$' /etc/passwd | cut -d: -f1
-echo "ports en ecoute ;"
+echo "Ports en écoute :"
 ss -tuln
-echo "fichiers en mode 777 dans $HOME ;"
+echo "Fichiers en mode 777 dans $HOME :"
 find "$HOME" -type f -perm 0777 2>/dev/null
 echo "(indicateurs a examiner, pas une preuve de vulnerabilite)"
 } >> "$RAPPORT"
-journaliser "audit securite termine"
+journaliser "Audit sécurité terminé"
 
 }
 # ===== Bloc 7 : resume et archives (ilyas) =====
